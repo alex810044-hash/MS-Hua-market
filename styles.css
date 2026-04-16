@@ -305,6 +305,15 @@ a:hover { color: var(--pink-dark); }
   flex: 1;
   max-width: 200px;
 }
+.stat-box-hero {
+  background: var(--pink);
+  border-color: var(--pink-dark);
+  max-width: 220px;
+}
+.stat-box-hero .stat-num { color: #fff; font-size: 2.6rem; }
+.stat-box-hero .stat-label { color: rgba(255,255,255,.9); }
+.stat-sub { font-size: .72rem; color: var(--sub); margin-top: .25rem; }
+.stat-box-hero .stat-sub { color: rgba(255,255,255,.7); }
 .stat-num {
   font-family: 'Noto Serif TC', serif;
   font-size: 2.2rem;

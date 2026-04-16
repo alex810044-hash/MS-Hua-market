@@ -389,7 +389,7 @@ a:hover { color: var(--pink-dark); }
 /* ── MARKET SECTION ── */
 .market-section {
   padding: 5rem 0 4.5rem;
-  background: var(--white);
+  background: #ffffff !important;
   border-top: 1px solid var(--border);
 }
 .market-intro { margin-bottom: 3rem; }

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>後台管理 — 華市集</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
+    :root {
+      --pink:      #d63384;
+      --pink-dark: #a8265f;
+      --pink-pale: #fff5fa;
+      --text:      #1c1c2e;
+      --sub:       #555570;
+      --border:    #e2d0da;
+      --bg:        #f8f5f9;
+      --white:     #ffffff;
+    }
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    a { color: var(--pink); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── LOGIN ── */
+    .login-screen {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(150deg, #fff0f6 0%, #fde0ee 60%, #ffd6e7 100%);
+      padding: 1.5rem;
+    }
+    .login-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2.8rem 2.2rem;
+      max-width: 380px; width: 100%;
+      box-shadow: 0 8px 40px rgba(214,51,132,.15);
+      border: 1px solid #f0d0e0;
+      text-align: center;
+    }
+    .login-logo { font-size: 1.05rem; font-weight: 700; color: var(--pink); margin-bottom: .3rem; }
+    .login-title { font-size: 1.35rem; font-weight: 700; color: var(--text); margin-bottom: 1.8rem; }
+    .login-field { text-align: left; margin-bottom: 1rem; }
+    .login-field label { display: block; font-size: .83rem; font-weight: 600; color: var(--text); margin-bottom: .4rem; }
+    .login-field input {
+      width: 100%; padding: .72rem .9rem;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: inherit; font-size: .95rem; color: var(--text);
+      background: #fff; transition: border-color .18s, box-shadow .18s;
+    }
+    .login-field input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(214,51,132,.12); }
+    .pwd-err { display: block; font-size: .8rem; color: #e05a5a; margin-top: .35rem; min-height: 1rem; }
+    .login-btn {
+      width: 100%; padding: .82rem;
+      background: var(--pink); color: #fff; border: none;
+      border-radius: 8px; font-family: inherit; font-size: .95rem;
+      font-weight: 600; cursor: pointer; margin-top: .5rem; transition: background .2s;
+    }
+    .login-btn:hover { background: var(--pink-dark); }
+
+    /* ── ADMIN LAYOUT ── */
+    #admin-screen { display: flex; flex-direction: column; min-height: 100vh; }
+    .admin-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #fff; border-bottom: 1px solid var(--border);
+      padding: .8rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .admin-header-left { display: flex; align-items: center; gap: .75rem; }
+    .admin-brand { font-size: 1rem; font-weight: 700; color: var(--pink); }
+    .sub-badge {
+      background: var(--pink); color: #fff;
+      font-size: .73rem; font-weight: 700;
+      padding: .18rem .55rem; border-radius: 99px;
+    }
+    .admin-header-right { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
+
+    .abtn {
+      padding: .42rem .85rem; border-radius: 7px;
+      font-family: inherit; font-size: .82rem; font-weight: 600; cursor: pointer;
+      border: 1.5px solid var(--pink); background: var(--pink); color: #fff;
+      transition: all .2s; white-space: nowrap;
+    }
+    .abtn:hover { background: var(--pink-dark); border-color: var(--pink-dark); }
+    .abtn-outline { background: transparent; color: var(--pink); }
+    .abtn-outline:hover { background: var(--pink); color: #fff; }
+    .abtn-ghost {
+      display: inline-flex; align-items: center;
+      padding: .42rem .75rem; border-radius: 7px;
+      font-family: inherit; font-size: .82rem; cursor: pointer;
+      border: 1.5px solid var(--border); background: transparent; color: var(--sub);
+      transition: all .2s; white-space: nowrap; text-decoration: none;
+    }
+    .abtn-ghost:hover { border-color: var(--pink); color: var(--pink); text-decoration: none; }
+
+    .admin-main { padding: 1.2rem 1.5rem 3rem; flex: 1; }
+
+    /* STATS */
+    .stats-row { display: flex; gap: .7rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .stat-chip {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 8px; padding: .55rem 1rem;
+      font-size: .82rem; color: var(--sub); white-space: nowrap;
+    }
+    .stat-chip strong { color: var(--pink); font-size: 1.15rem; margin-right: .25rem; }
+
+    /* STATES */
+    .state-box { text-align: center; padding: 4rem 1rem; color: var(--sub); }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border); border-top-color: var(--pink);
+      border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TABLE */
+    .table-wrap {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 10px; overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; min-width: 1300px; }
+    thead th {
+      background: #fdf5f9; padding: .65rem .85rem;
+      text-align: left; font-weight: 700; color: var(--text);
+      font-size: .77rem; letter-spacing: .3px;
+      border-bottom: 2px solid var(--border); white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid #f5eff3; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fff8fc; }
+    td { padding: .6rem .85rem; vertical-align: top; color: var(--text); line-height: 1.5; }
+
+    .ci   { width: 36px; color: #bbb; text-align: center; font-size: .78rem; }
+    .cd   { width: 125px; font-size: .77rem; color: var(--sub); white-space: nowrap; }
+    .cn   { width: 75px; font-weight: 600; white-space: nowrap; }
+    .cp   { width: 108px; white-space: nowrap; }
+    .ce   { max-width: 150px; word-break: break-all; }
+
+    .expand {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-size: .81rem; color: var(--sub); line-height: 1.45; cursor: help;
+    }
+    tr:hover .expand { -webkit-line-clamp: unset; overflow: visible; }
+
+    .badge { display: inline-block; padding: .18rem .5rem; border-radius: 99px; font-size: .74rem; font-weight: 600; }
+    .b-yes       { background: #e8f5e9; color: #2e7d32; }
+    .b-preparing { background: #fff8e1; color: #f57f17; }
+    .b-new       { background: #e3f2fd; color: #1565c0; }
+    .b-returning { background: #f3e5f5; color: #7b1fa2; }
+    .b-no        { background: #fce4ec; color: #c62828; }
+    .b-booth     { background: #e8eaf6; color: #3949ab; }
+    .b-truck     { background: #fbe9e7; color: #bf360c; }
+
+    .file-btn {
+      display: inline-flex; align-items: center; gap: .22rem;
+      padding: .25rem .55rem;
+      background: var(--pink-pale); border: 1px solid #f0c0dc;
+      border-radius: 5px; font-size: .77rem; font-weight: 600;
+      color: var(--pink); white-space: nowrap; text-decoration: none; transition: all .15s;
+    }
+    .file-btn:hover { background: var(--pink); color: #fff; text-decoration: none; }
+    .no-file { color: #ccc; font-size: .79rem; }
+
+    @media (max-width: 600px) {
+      .admin-header { padding: .6rem 1rem; }
+      .admin-main   { padding: .9rem 1rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ 登入畫面 ═══════════ -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">華市集 × 蔬味平生</div>
+    <h1 class="login-title">後台管理</h1>
+    <form id="login-form">
+      <div class="login-field">
+        <label for="pwd-input">管理員密碼</label>
+        <input type="password" id="pwd-input" placeholder="請輸入密碼" autocomplete="current-password">
+        <small id="pwd-err" class="pwd-err"></small>
+      </div>
+      <button type="submit" class="login-btn">登入</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ 後台主畫面 ═══════════ -->
+<div id="admin-screen" hidden>
+
+  <header class="admin-header">
+    <div class="admin-header-left">
+      <span class="admin-brand">🌸 華市集 後台</span>
+      <span id="sub-badge" class="sub-badge" hidden></span>
+    </div>
+    <div class="admin-header-right">
+      <button id="refresh-btn" class="abtn-ghost">↻ 重新整理</button>
+      <button id="export-btn" class="abtn">⬇ 匯出 CSV</button>
+      <a href="/" class="abtn-ghost">← 回首頁</a>
+      <button id="logout-btn" class="abtn abtn-outline">登出</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+
+    <!-- 統計列 -->
+    <div id="stats-row" class="stats-row" hidden>
+      <div class="stat-chip"><strong id="s-total">0</strong>筆報名</div>
+      <div class="stat-chip"><strong id="s-booth">0</strong>桌攤/落地</div>
+      <div class="stat-chip"><strong id="s-truck">0</strong>餐車</div>
+      <div class="stat-chip"><strong id="s-new">0</strong>新攤友</div>
+      <div class="stat-chip"><strong id="s-ret">0</strong>舊攤友</div>
+      <div class="stat-chip"><strong id="s-line">0</strong>已加入 Line</div>
+    </div>
+
+    <!-- 載入中 -->
+    <div id="state-loading" class="state-box">
+      <div class="spinner"></div>
+      <p>正在從 Netlify 載入報名資料…</p>
+    </div>
+
+    <!-- 錯誤 -->
+    <div id="state-error" class="state-box" hidden>
+      <p style="margin-bottom:1.2rem;font-size:.95rem;">⚠️ <span id="err-msg">載入失敗</span></p>
+      <button onclick="loadData()" class="abtn">重試</button>
+    </div>
+
+    <!-- 空 -->
+    <div id="state-empty" class="state-box" hidden>
+      <p>目前尚無報名資料</p>
+    </div>
+
+    <!-- 表格 -->
+    <div id="table-wrap" class="table-wrap" hidden>
+      <table>
+        <thead>
+          <tr>
+            <th class="ci">#</th>
+            <th class="cd">報名時間</th>
+            <th class="cn">姓名</th>
+            <th style="min-width:110px">品牌/攤位</th>
+            <th class="cp">手機</th>
+            <th class="ce">Email</th>
+            <th style="width:82px">身分</th>
+            <th style="width:85px">型態</th>
+            <th style="min-width:150px">販售品項</th>
+            <th style="width:82px">責任險</th>
+            <th style="width:82px">食品登錄</th>
+            <th style="width:95px">責任險文件</th>
+            <th style="width:95px">食品登錄文件</th>
+            <th style="min-width:150px">備註</th>
+            <th style="width:72px">Line</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ═══ 設定（密碼 & GAS 網址填這裡）═══
+const ADMIN_PWD = 'hua@2026';
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycbyq_RNKI37m1pH1_BiwZy4Ta0EaGuzJ-Pxhu51i04KH1b-rdQP3T3BfoSS9gVev9w/exec';
+
+let allSubs = [];
+
+// ─── 登入 ───
+document.getElementById('login-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = document.getElementById('pwd-input').value;
+  if (v === ADMIN_PWD) {
+    document.getElementById('login-screen').hidden = true;
+    document.getElementById('admin-screen').hidden = false;
+    loadData();
+  } else {
+    document.getElementById('pwd-err').textContent = '密碼錯誤，請再試一次';
+    document.getElementById('pwd-input').select();
+  }
+});
+
+// ─── 登出 ───
+document.getElementById('logout-btn').addEventListener('click', () => {
+  document.getElementById('admin-screen').hidden = true;
+  document.getElementById('login-screen').hidden = false;
+  document.getElementById('pwd-input').value = '';
+  document.getElementById('pwd-err').textContent = '';
+  allSubs = [];
+});
+
+// ─── 重新整理 ───
+document.getElementById('refresh-btn').addEventListener('click', loadData);
+
+// ─── 載入資料（從 Google Apps Script 讀取）───
+async function loadData() {
+  setState('loading');
+  try {
+    if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL') {
+      throw new Error('請先在 admin.html 填入 GAS_URL（Google Apps Script 部署網址）');
+    }
+    const res = await fetch(GAS_URL);
+    if (!res.ok) throw new Error('GAS 回應錯誤 ' + res.status);
+    const raw = await res.json();
+
+    // 若 GAS 回傳錯誤物件
+    if (raw && raw.error) throw new Error('GAS 錯誤：' + raw.error);
+
+    // GAS doGet 回傳陣列，每筆是 {欄位名: 值} 物件，統一轉成 {data:{}} 格式
+    allSubs = (Array.isArray(raw) ? raw : []).map((row, i) => ({
+      created_at: row['報名時間'] || '',
+      data: {
+        fullName:         row['姓名']          || '',
+        organization:     row['品牌/攤位名稱'] || '',
+        phone:            row['手機']           || '',
+        email:            row['Email']          || '',
+        vendorIdentity:   row['參加身分'] === '新攤友' ? 'new' : row['參加身分'] === '舊攤友' ? 'returning' : row['參加身分'],
+        boothType:        row['參加型態'] === '桌攤/落地攤' ? 'booth' : row['參加型態'] === '餐車' ? 'truck' : row['參加型態'],
+        productInfo:      row['販售品項']       || '',
+        insurance:        row['產品責任險'] === '已具備' ? 'yes' : row['產品責任險'] === '準備中' ? 'preparing' : row['產品責任險'],
+        foodRegistration: row['食品登錄字號'] === '已具備' ? 'yes' : row['食品登錄字號'] === '準備中' ? 'preparing' : row['食品登錄字號'],
+        insuranceFile:    row['責任險文件']     || '',
+        foodFile:         row['食品登錄文件']   || '',
+        motivation:       row['備註']           || '',
+        lineJoined:       row['已加入Line'] === '是' ? 'yes' : row['已加入Line'] === '否' ? 'no' : row['已加入Line'],
+      }
+    }));
+
+    if (!allSubs.length) { setState('empty'); return; }
+    renderStats(allSubs);
+    renderTable(allSubs);
+    setState('table');
+
+  } catch (err) {
+    document.getElementById('err-msg').textContent = err.message;
+    setState('error');
+    console.error(err);
+  }
+}
+
+function setState(s) {
+  document.getElementById('state-loading').hidden = s !== 'loading';
+  document.getElementById('state-error').hidden   = s !== 'error';
+  document.getElementById('state-empty').hidden   = s !== 'empty';
+  document.getElementById('table-wrap').hidden    = s !== 'table';
+  document.getElementById('stats-row').hidden     = s !== 'table';
+  const b = document.getElementById('sub-badge');
+  b.hidden = s !== 'table';
+  if (s === 'table') b.textContent = '共 ' + allSubs.length + ' 筆';
+}
+
+// ─── 統計 ───
+function renderStats(subs) {
+  const c = fn => subs.filter(fn).length;
+  document.getElementById('s-total').textContent = subs.length;
+  document.getElementById('s-booth').textContent = c(s => s.data.boothType === 'booth');
+  document.getElementById('s-truck').textContent = c(s => s.data.boothType === 'truck');
+  document.getElementById('s-new').textContent   = c(s => s.data.vendorIdentity === 'new');
+  document.getElementById('s-ret').textContent   = c(s => s.data.vendorIdentity === 'returning');
+  document.getElementById('s-line').textContent  = c(s => s.data.lineJoined === 'yes');
+}
+
+// ─── 對照表 ───
+const IDENTITY = { new: ['新攤友','b-new'], returning: ['舊攤友','b-returning'] };
+const BOOTH    = { booth: ['桌攤/落地','b-booth'], truck: ['餐車','b-truck'] };
+const STATUS   = { yes: ['已具備','b-yes'], preparing: ['準備中','b-preparing'] };
+const JOINED   = { yes: ['✓ 是','b-yes'], no: ['✗ 否','b-no'] };
+
+function badge(map, val) {
+  const m = map[val];
+  if (!m) return '<span class="no-file">' + (x(val) || '—') + '</span>';
+  return '<span class="badge ' + m[1] + '">' + m[0] + '</span>';
+}
+
+// ─── 渲染表格 ───
+function renderTable(subs) {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  subs.forEach((sub, i) => {
+    const d  = sub.data || {};
+    const dt = new Date(sub.created_at);
+    const dts = dt.getFullYear() + '/' + pad(dt.getMonth()+1) + '/' + pad(dt.getDate()) +
+                ' ' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="ci">' + (i+1) + '</td>' +
+      '<td class="cd">' + dts + '</td>' +
+      '<td class="cn">' + x(d.fullName) + '</td>' +
+      '<td>' + x(d.organization) + '</td>' +
+      '<td class="cp"><a href="tel:' + x(d.phone) + '">' + x(d.phone) + '</a></td>' +
+      '<td class="ce"><a href="mailto:' + x(d.email) + '">' + x(d.email) + '</a></td>' +
+      '<td>' + badge(IDENTITY, d.vendorIdentity) + '</td>' +
+      '<td>' + badge(BOOTH, d.boothType) + '</td>' +
+      '<td><div class="expand" title="' + x(d.productInfo) + '">' + x(d.productInfo) + '</div></td>' +
+      '<td>' + badge(STATUS, d.insurance) + '</td>' +
+      '<td>' + badge(STATUS, d.foodRegistration) + '</td>' +
+      '<td>' + flink(d.insuranceFile) + '</td>' +
+      '<td>' + flink(d.foodFile) + '</td>' +
+      '<td><div class="expand" title="' + x(d.motivation) + '">' + x(d.motivation) + '</div></td>' +
+      '<td>' + badge(JOINED, d.lineJoined) + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function flink(file) {
+  if (!file) return '<span class="no-file">—</span>';
+  let url = '', name = '查看文件';
+  if (typeof file === 'string')        { url = file; }
+  else if (typeof file === 'object')   { url = file.url || ''; name = file.filename || name; }
+  if (!url) return '<span class="no-file">—</span>';
+  return '<a href="' + url + '" target="_blank" rel="noopener" class="file-btn">📄 ' + x(name) + '</a>';
+}
+
+function x(str) {
+  if (str === null || str === undefined || str === '') return '—';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+
+// ─── 匯出 CSV ───
+document.getElementById('export-btn').addEventListener('click', () => {
+  if (!allSubs.length) { alert('目前沒有資料可匯出'); return; }
+
+  const HDR = ['#','報名時間','姓名','品牌/攤位名稱','手機','Email',
+    '參加身分','參加型態','販售品項','產品責任險','食品登錄字號',
+    '責任險文件連結','食品登錄文件連結','備註','已加入Line'];
+
+  const rows = allSubs.map((sub, i) => {
+    const d  = sub.data || {};
+    const dt = new Date(sub.created_at);
+    const dts = dt.getFullYear() + '/' + pad(dt.getMonth()+1) + '/' + pad(dt.getDate()) +
+                ' ' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+    return [
+      i+1, dts,
+      d.fullName, d.organization, d.phone, d.email,
+      (IDENTITY[d.vendorIdentity] || [''])[0],
+      (BOOTH[d.boothType]         || [''])[0],
+      d.productInfo,
+      (STATUS[d.insurance]        || [''])[0],
+      (STATUS[d.foodRegistration] || [''])[0],
+      getUrl(d.insuranceFile), getUrl(d.foodFile),
+      d.motivation,
+      d.lineJoined === 'yes' ? '是' : '否',
+    ].map(v => '"' + String(v ?? '').replace(/"/g,'""') + '"').join(',');
+  });
+
+  const csv  = '\uFEFF' + [HDR.map(h => '"' + h + '"').join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const today = new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'-');
+  a.href = url;
+  a.download = '華市集報名_' + today + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+function getUrl(file) {
+  if (!file) return '';
+  if (typeof file === 'string') return file;
+  return (file && file.url) ? file.url : '';
+}
+</script>
+</body>
+</html>
